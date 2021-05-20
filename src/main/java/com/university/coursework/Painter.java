@@ -54,6 +54,7 @@ public class Painter {
     private void updateCriticalValue() {
         Set<Integer> collect = edges.stream()
                 .map(edge -> edge.getFirst().getY())
+                .filter(y -> y > currentY)
                 .collect(Collectors.toSet());
         collect.addAll(activeEdgeList.stream()
                                .map(ActiveEdgeMetaData::getY2)
@@ -63,13 +64,14 @@ public class Painter {
     }
 
     private void deletePairLines() {
-        activeEdgeList.forEach(md -> {
-            if (md.getY2() == currentY
-                    && activeEdgeList.get(activeEdgeList.indexOf(md) + 1).getY2() == currentY) {
-                activeEdgeList.remove(md);
-                activeEdgeList.remove(activeEdgeList.indexOf(md) + 1);
+        for (int i = 0; i < activeEdgeList.size() - 1; i++) {
+            if (activeEdgeList.get(i).getY2() == currentY
+                    && activeEdgeList.get(i + 1).getY2() == currentY) {
+                activeEdgeList.remove(i);
+                activeEdgeList.remove(i);
+                i--;
             }
-        });
+        }
     }
 
     private void addNewEdgesInAEL() {
@@ -86,16 +88,17 @@ public class Painter {
     }
 
     private void deleteNotPairLines() {
-        activeEdgeList.forEach(md -> {
-            if (md.getY2() == currentY
-                    && activeEdgeList.get(activeEdgeList.indexOf(md) + 1).getY2() != currentY) {
-                activeEdgeList.remove(md);
+        for (int i = 0; i < activeEdgeList.size(); i++) {
+            if ((activeEdgeList.get(i).getY2() == currentY && i == activeEdgeList.size() - 1) ||
+                    (activeEdgeList.get(i).getY2() == currentY && activeEdgeList.get(i + 1).getY2() != currentY)) {
+                activeEdgeList.remove(i);
+                i--;
             }
-        });
+        }
     }
 
     private void printLinesFromAEL() {
-        for (int i = 0; i < activeEdgeList.size(); i += 2) {
+        for (int i = 0; i < activeEdgeList.size() - 1; i += 2) {
             printLine(activeEdgeList.get(i).getX(), activeEdgeList.get(i + 1).getX(), currentY);
         }
     }
@@ -110,7 +113,7 @@ public class Painter {
     }
 
     private void sortEdges() {
-        activeEdgeList.sort(Comparator.comparingInt(ActiveEdgeMetaData::getDeltaX).thenComparingInt(ActiveEdgeMetaData::getX));
+        activeEdgeList.sort(Comparator.comparingInt(ActiveEdgeMetaData::getX).thenComparingInt(ActiveEdgeMetaData::getDeltaX));
     }
 
     private void initLimits() {
