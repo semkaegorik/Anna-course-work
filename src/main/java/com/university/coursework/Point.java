@@ -6,6 +6,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class Point {
-    private final int x;
-    private final int y;
+    private final double x;
+    private final double y;
 }

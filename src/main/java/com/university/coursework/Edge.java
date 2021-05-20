@@ -11,6 +11,4 @@ public class Edge {
         this.first = first.getY() < second.getY() ? first : first.getY() > second.getY() ? second : first.getX() <= second.getX() ? first : second;
         this.second = first.getY() < second.getY() ? second : first.getY() > second.getY() ? first : first.getX() <= second.getX() ? second : first;
     }
-
-
 }

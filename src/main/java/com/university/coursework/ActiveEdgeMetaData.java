@@ -8,8 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ActiveEdgeMetaData {
-    private  int x;
-    private final int deltaX;
-    private final int y2;
-
+    private  double x;
+    private final double deltaX;
+    private final double y2;
 }

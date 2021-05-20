@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 
 public class Painter {
     private final List<Edge> edges;
-    private int minY = Integer.MAX_VALUE;
-    private int maxY = Integer.MIN_VALUE;
-    private int currentY;
-    private int criticalY;
+    private double minY = Integer.MAX_VALUE;
+    private double maxY = Integer.MIN_VALUE;
+    private double currentY;
+    private double criticalY;
     private final List<ActiveEdgeMetaData> activeEdgeList = new ArrayList<>();
 
     public Painter(List<Edge> edges) {
@@ -52,15 +52,15 @@ public class Painter {
     }
 
     private void updateCriticalValue() {
-        Set<Integer> collect = edges.stream()
+        Set<Double> collect = edges.stream()
                 .map(edge -> edge.getFirst().getY())
                 .filter(y -> y > currentY)
                 .collect(Collectors.toSet());
         collect.addAll(activeEdgeList.stream()
                                .map(ActiveEdgeMetaData::getY2)
                                .collect(Collectors.toSet()));
-        Optional<Integer> min = collect.stream().min(Integer::compareTo);
-        criticalY = min.get();
+        Optional<Double> min = collect.stream().min(Double::compareTo);
+        criticalY = min.orElseGet(() -> criticalY);
     }
 
     private void deletePairLines() {
@@ -89,8 +89,9 @@ public class Painter {
 
     private void deleteNotPairLines() {
         for (int i = 0; i < activeEdgeList.size(); i++) {
-            if ((activeEdgeList.get(i).getY2() == currentY && i == activeEdgeList.size() - 1) ||
-                    (activeEdgeList.get(i).getY2() == currentY && activeEdgeList.get(i + 1).getY2() != currentY)) {
+            if ((activeEdgeList.get(i).getY2() == currentY)
+                    && ((i == activeEdgeList.size()-1) || (activeEdgeList.get(i + 1).getY2() != currentY))
+                    && ((i == 0) || (activeEdgeList.get(i - 1).getY2() != currentY))) {
                 activeEdgeList.remove(i);
                 i--;
             }
@@ -103,17 +104,17 @@ public class Painter {
         }
     }
 
-    private void printLine(int x, int x1, int y) {
+    private void printLine(double x, double x1, double y) {
         System.out.println(MessageFormat.format("paint line x: {0} x2: {1} line(y): {2}", x, x1, y));
     }
 
 
-    private int getDeltaX(Edge edge) {
+    private double getDeltaX(Edge edge) {
         return (edge.getSecond().getX() - edge.getFirst().getX()) / (edge.getSecond().getY() - edge.getFirst().getY());
     }
 
     private void sortEdges() {
-        activeEdgeList.sort(Comparator.comparingInt(ActiveEdgeMetaData::getX).thenComparingInt(ActiveEdgeMetaData::getDeltaX));
+        activeEdgeList.sort(Comparator.comparingDouble(ActiveEdgeMetaData::getX).thenComparingDouble(ActiveEdgeMetaData::getDeltaX));
     }
 
     private void initLimits() {
