@@ -27,24 +27,8 @@ public class Painter {
         criticalY = minY;
         while (currentY <= maxY) {
             if (currentY == criticalY) {
-                activeEdgeList.forEach(md -> {
-                    if (md.getY2() == currentY
-                            && activeEdgeList.get(activeEdgeList.indexOf(md) + 1).getY2() != currentY) {
-                        activeEdgeList.remove(md);
-                    }
-                });
-
-                edges.forEach(edge -> {
-                    if (edge.getFirst().getY() == currentY
-                            && edge.getFirst().getY() != edge.getSecond().getY()) {
-                        activeEdgeList.add(new ActiveEdgeMetaData(
-                                edge.getFirst().getX(),
-                                getDeltaX(edge),
-                                edge.getSecond().getY()
-                        ));
-                    }
-                });
-
+                deleteNotPairLines();
+                addNewEdgesInAEL();
                 sortEdges();
 
                 edges.forEach(edge -> {
@@ -58,27 +42,56 @@ public class Painter {
             printLinesFromAEL();
 
             if (currentY == criticalY) {
-                activeEdgeList.forEach(md -> {
-                    if (md.getY2() == currentY
-                            && activeEdgeList.get(activeEdgeList.indexOf(md) + 1).getY2() == currentY) {
-                        activeEdgeList.remove(md);
-                        activeEdgeList.remove(activeEdgeList.indexOf(md) + 1);
-                    }
-                });
-
-                Set<Integer> collect = edges.stream()
-                        .map(edge -> edge.getFirst().getY())
-                        .collect(Collectors.toSet());
-                collect.addAll(activeEdgeList.stream()
-                                       .map(ActiveEdgeMetaData::getY2)
-                                       .collect(Collectors.toSet()));
-                Optional<Integer> min = collect.stream().min(Integer::compareTo);
-                criticalY = min.get();
+                deletePairLines();
+                updateCriticalValue();
             }
 
             activeEdgeList.forEach(md -> md.setX(md.getX() + md.getDeltaX()));
             currentY++;
         }
+    }
+
+    private void updateCriticalValue() {
+        Set<Integer> collect = edges.stream()
+                .map(edge -> edge.getFirst().getY())
+                .collect(Collectors.toSet());
+        collect.addAll(activeEdgeList.stream()
+                               .map(ActiveEdgeMetaData::getY2)
+                               .collect(Collectors.toSet()));
+        Optional<Integer> min = collect.stream().min(Integer::compareTo);
+        criticalY = min.get();
+    }
+
+    private void deletePairLines() {
+        activeEdgeList.forEach(md -> {
+            if (md.getY2() == currentY
+                    && activeEdgeList.get(activeEdgeList.indexOf(md) + 1).getY2() == currentY) {
+                activeEdgeList.remove(md);
+                activeEdgeList.remove(activeEdgeList.indexOf(md) + 1);
+            }
+        });
+    }
+
+    private void addNewEdgesInAEL() {
+        edges.forEach(edge -> {
+            if (edge.getFirst().getY() == currentY
+                    && edge.getFirst().getY() != edge.getSecond().getY()) {
+                activeEdgeList.add(new ActiveEdgeMetaData(
+                        edge.getFirst().getX(),
+                        getDeltaX(edge),
+                        edge.getSecond().getY()
+                ));
+            }
+        });
+    }
+
+    private void deleteNotPairLines() {
+        activeEdgeList.forEach(md -> {
+            if (md.getY2() == currentY
+                    && activeEdgeList.get(activeEdgeList.indexOf(md) + 1).getY2() != currentY) {
+                activeEdgeList.remove(md);
+            }
+        });
     }
 
     private void printLinesFromAEL() {
