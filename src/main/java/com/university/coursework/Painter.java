@@ -77,6 +77,7 @@ public class Painter {
             }
 
             activeEdgeList.forEach(md -> md.setX(md.getX() + md.getDeltaX()));
+            currentY++;
         }
     }
 
